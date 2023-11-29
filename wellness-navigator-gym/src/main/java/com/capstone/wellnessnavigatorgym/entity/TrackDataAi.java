@@ -19,11 +19,11 @@ public class TrackDataAi {
     private String trainingHistory;
     private Integer age;
     private String gender;
-    private Double height;
-    private Double weight;
-    private String suggestedExercises;
+    private Double bmi;
+    private Boolean effective;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    @JoinColumn(name = "course_id")
+    private Course course;
+
 }
