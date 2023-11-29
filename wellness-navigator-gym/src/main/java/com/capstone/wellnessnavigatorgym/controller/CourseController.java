@@ -1,18 +1,19 @@
 package com.capstone.wellnessnavigatorgym.controller;
 
+import com.capstone.wellnessnavigatorgym.dto.course.CourseDetailsOfCommentDto;
+import com.capstone.wellnessnavigatorgym.dto.course.CourseDetailsOfExerciseDto;
 import com.capstone.wellnessnavigatorgym.entity.Course;
 import com.capstone.wellnessnavigatorgym.service.ICourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/course")
+@CrossOrigin(origins = "http://localhost:3000")
 public class CourseController {
 
     @Autowired
@@ -25,5 +26,28 @@ public class CourseController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(courseList, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Course> getCourseById(@PathVariable Integer id) {
+        return new ResponseEntity<>(courseService.findCourseById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{courseId}/day/{dayId}/exercise")
+    public ResponseEntity<List<CourseDetailsOfExerciseDto>> getCourseDetailsByDayAndCourseOfExercise(@PathVariable Integer courseId, @PathVariable Integer dayId) {
+        List<CourseDetailsOfExerciseDto> courseDetailsOfExerciseDtoList = this.courseService.getCourseDetailsByDayAndCourseOfExercise(courseId, dayId);
+        if (courseDetailsOfExerciseDtoList.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(courseDetailsOfExerciseDtoList, HttpStatus.OK);
+    }
+
+    @GetMapping("/{courseId}/day/{dayId}/comment")
+    public ResponseEntity<List<CourseDetailsOfCommentDto>> getCourseDetailsByDayAndCourseOfComment(@PathVariable Integer courseId, @PathVariable Integer dayId) {
+        List<CourseDetailsOfCommentDto> courseDetailsOfCommentDtoList = this.courseService.getCourseDetailsByDayAndCourseOfComment(courseId, dayId);
+        if (courseDetailsOfCommentDtoList.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(courseDetailsOfCommentDtoList, HttpStatus.OK);
     }
 }

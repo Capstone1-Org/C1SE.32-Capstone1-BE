@@ -3,20 +3,27 @@ package com.capstone.wellnessnavigatorgym.service.impl;
 import com.capstone.wellnessnavigatorgym.dto.customer.CustomerInfo;
 import com.capstone.wellnessnavigatorgym.dto.customer.CustomerUserDetailDto;
 import com.capstone.wellnessnavigatorgym.entity.Customer;
+import com.capstone.wellnessnavigatorgym.error.NotFoundById;
 import com.capstone.wellnessnavigatorgym.repository.ICustomerRepository;
 import com.capstone.wellnessnavigatorgym.service.ICustomerService;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.Tuple;
+import java.util.Optional;
 
 @Service
 public class CustomerServiceImpl implements ICustomerService {
 
+    private final ICustomerRepository customerRepository;
+
     @Autowired
-    private ICustomerRepository customerRepository;
+    public CustomerServiceImpl(ICustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
 
     @Override
     public void save(Customer customer) {
@@ -46,9 +53,14 @@ public class CustomerServiceImpl implements ICustomerService {
                 customerInfo.getCustomerImg(), true, customerInfo.getCustomerType());
     }
 
+    @SneakyThrows
     @Override
     public Customer findById(Integer id) {
-        return customerRepository.findById(id).orElse(null);
+        Optional<Customer> customer = customerRepository.findById(id);
+        if (customer.isPresent()) {
+            return customer.get();
+        }
+        throw new NotFoundById("Could not find any customers with code: " + id);
     }
 
     @Override
@@ -66,10 +78,12 @@ public class CustomerServiceImpl implements ICustomerService {
 
     @Override
     public CustomerUserDetailDto findUserDetailByUsername(String username) {
-        Tuple tuple = customerRepository.findUserDetail(username).orElse(null);
+        Tuple tuple = customerRepository.findUserDetailByUsername(username).orElse(null);
+
         if (tuple != null) {
             return CustomerUserDetailDto.TupleToCustomerDto(tuple);
         }
+
         return null;
     }
 }
